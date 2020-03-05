@@ -15,14 +15,13 @@ GLFWwindow* WINDOW;
 bool initializeWindow();
 void fpsCounter();
 
+
 const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
 
-void drawTriangle() {}
-
-
-//Shader Section//
-const GLchar* vertexShader = "#version 330 core\n layout(location = 0) in vec3 position;\nvoid main(){\ngl_position = vec4(position.x,position.y,position.z,1.0);\n}";
-const GLchar* fragmentShaderSrc
+//Shader Defined Section//
+//These are the two minimum required shader
+const GLchar* vertexShaderSrc = "#version 330 core\n layout(location = 0) in vec3 position;\nvoid main(){\ngl_Position = vec4(position.x,position.y,position.z,1.0);\n}";
+const GLchar* fragmentShaderSrc = "#version 330 core\nout vec4 color;\nvoid main(){\ncolor =  vec4(1.0f, 0.14f, 0.96f, 1.0f);\n} ";
 
 int main()
 {
@@ -105,6 +104,75 @@ bool initializeWindow() {
         }
         });
 
+
+
+    //Keeping it simple, first I'm going to draw a simple triangle
+    GLfloat vertices[] = {
+       0,0.5f,0,
+       -0.5,0,0,
+       0.5,0,0
+    };
+
+    GLuint vertexBufferObject; //the vbo object
+    glGenBuffers(1, &vertexBufferObject); //creating one buffer and saving it's address in the vbo object above
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
+    //Note: In openGl we can only have one buffer active at a time
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Since the vertice data won't be changed a lot, I'm sticking with STATIC_DRAW instead of DYNAMIC_DRAW
+
+    //Core openGL now requires vertex array objects to draw
+    GLuint vertexArrayObject; //the vao
+    glGenVertexArrays(1, &vertexArrayObject);
+    glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL); //the first is zero for I only have position data
+
+    glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
+
+
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
+    glCompileShader(fragmentShader);
+
+
+    //check if the shader compiles good
+    GLint result;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
+
+    if (!result) {
+
+        glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
+        printf("Vertex Shader compilation failed:" + *infoLog);
+    }
+
+    //Now checking compilation for the fragment shader
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
+    if (!result) {
+        glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
+        printf("Fragment shader compilation failed:" + *infoLog);
+    }
+
+    //Creating a shader program to use the shader
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
+    if (!result) {
+        glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
+        printf("Shader program linking failed:" + *infoLog);
+    }
+
+    //Now since the program is created, I can delete the shaders
+    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
+
+
     while (!glfwWindowShouldClose(WINDOW)) {
 
         //Polling for user triggered input events
@@ -117,14 +185,31 @@ bool initializeWindow() {
         glClearColor(0, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        //Drawing my triangle --START
+        glUseProgram(shaderProgram);
+        glBindVertexArray(vertexArrayObject);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        //After drawing the points, unhook it
+        glBindVertexArray(0);
+        //Drawing my triangle --END
+
         glfwSwapBuffers(WINDOW); //Like the Professor said, there are 2 buffers, one that is drawn and that the other that we are drawing to, so we just swap them to show the one that we've just drawn to
     }
+
+    //post run clean-up
+    glDeleteProgram(shaderProgram);
+    glDeleteVertexArrays(1, &vertexArrayObject);
+    glDeleteBuffers(1, &vertexBufferObject);
+    glfwTerminate();
+    
+
     return true;
 }
 
 void fpsCounter() {
-                             
-   //to get the fps, I need to keep track between prev and current renders
+
+    //to get the fps, I need to keep track between prev and current renders
     static double prevTimeInSeconds = 0.0;
     static int countOfFrames = 0;
 
@@ -134,10 +219,10 @@ void fpsCounter() {
 
     timeElaspedInSeconds = currentTimeInSecs - prevTimeInSeconds;
 
-   
+
     if (timeElaspedInSeconds > FPS_TEXT_UPDATE_FREQUENCY)
     {
-      
+
         prevTimeInSeconds = currentTimeInSecs;
         double framePerSec = (double)countOfFrames / timeElaspedInSeconds;
 
@@ -145,10 +230,10 @@ void fpsCounter() {
         ostringstream outs;
         outs.precision(2);	// setting the precision to 2 decimal places
         outs << fixed << TITLE << "  Fps: " << framePerSec;
-        
+
         glfwSetWindowTitle(WINDOW, outs.str().c_str()); //I wanted to use data but since the function signature wants a char* pointer, using c_str()
 
-        
+
         //Resetting for the next one
         countOfFrames = 0;
     }
@@ -156,41 +241,3 @@ void fpsCounter() {
     countOfFrames++;
 
 }
-
-void drawTriangle() {
-   
-    GLfloat vertices[] = {
-    0,0.5f,0,
-    -0.5,0,0,
-    0.5,0,0
-    };
- 
-    GLuint vertexBufferObject; //the vbo object
-    glGenBuffers(1, &vertexBufferObject); //creating one buffer and saving it's address in the vbo object above
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
-    //Note: In openGl we can only have one buffer active at a time
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Since the vertice data won't be changed a lot, I'm sticking with STATIC_DRAW instead of DYNAMIC_DRAW
-
-    //Core openGL now requires vertex array objects to draw
-    GLuint vertexArrayObject; //the vao
-    glGenVertexArrays(1, &vertexArrayObject);
-    glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
-    
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3, NULL); //the first is zero for I only have position data
-
-    glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
-
-
-    //What to put inside the loop later
-    glBindVertexArray(vertexArrayObject);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    //After drawing the points, unhook it
-    glBindVertexArray(0);
-
-
-}
-
-struct primitive {
-    GLfloat vertices[];
-};
