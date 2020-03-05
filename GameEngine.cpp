@@ -20,8 +20,8 @@ const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
 
 //Shader Defined Section//
 //These are the two minimum required shader
-const GLchar* vertexShaderSrc = "#version 330 core\n layout(location = 0) in vec3 position;\nvoid main(){\ngl_Position = vec4(position.x,position.y,position.z,1.0);\n}";
-const GLchar* fragmentShaderSrc = "#version 330 core\nout vec4 color;\nvoid main(){\ncolor =  vec4(1.0f, 0.14f, 0.96f, 1.0f);\n} ";
+const GLchar* vertexShaderSrc =   "#version 330 core\n layout(location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nout vec3 vertColor; \nvoid main(){\nvertColor = color;\ngl_Position = vec4 (position.x,position.y,position.z,1.0);\n}";
+const GLchar* fragmentShaderSrc = "#version 330 core\n out vec4 color;\nin vec3 vertColor;\nvoid main(){\ncolor = vec4 (vertColor,1.0f);\n} ";
 
 int main()
 {
@@ -108,9 +108,9 @@ bool initializeWindow() {
 
     //Keeping it simple, first I'm going to draw a simple triangle
     GLfloat vertices[] = {
-       0,0.5f,0,
-       -0.5,0,0,
-       0.5,0,0
+       0.0f,0.5f,0.0f,   1.0f,0.0f,0.0f,
+       -0.5f,0.0f,0.0f,  0.0f,1.0f,0.0f,
+       0.5f,0.0f,0.0f,   0.0f,0.0f,1.0f
     };
 
     GLuint vertexBufferObject; //the vbo object
@@ -124,10 +124,16 @@ bool initializeWindow() {
     glGenVertexArrays(1, &vertexArrayObject);
     glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL); //the first is zero for I only have position data
+    
+    //Attrib pointer for position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*6, NULL); //the first is zero for I only have position data. A float is of 4 bytes and since we have x,y,z to represent a vertice. 
+
+    //Attrib pointer for color 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 6, (GLvoid*)(sizeof(GLfloat)*3)); //Since the color attribs are after the first 3 float positions
+
 
     glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
-
+    glEnableVertexAttribArray(1); //Enabling my color pointer as well
 
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
