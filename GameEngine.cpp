@@ -19,6 +19,11 @@ const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
 
 void drawTriangle() {}
 
+
+//Shader Section//
+const GLchar* vertexShader = "#version 330 core\n layout(location = 0) in vec3 position;\nvoid main(){\ngl_position = vec4(position.x,position.y,position.z,1.0);\n}";
+const GLchar* fragmentShaderSrc
+
 int main()
 {
     if (!initializeWindow()) {
@@ -153,14 +158,37 @@ void fpsCounter() {
 }
 
 void drawTriangle() {
-    primitive triangle;
-    
-    triangle.vertices = {
-    0,0,0 //The topmost point
+   
+    GLfloat vertices[] = {
+    0,0.5f,0,
+    -0.5,0,0,
+    0.5,0,0
+    };
+ 
+    GLuint vertexBufferObject; //the vbo object
+    glGenBuffers(1, &vertexBufferObject); //creating one buffer and saving it's address in the vbo object above
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
+    //Note: In openGl we can only have one buffer active at a time
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Since the vertice data won't be changed a lot, I'm sticking with STATIC_DRAW instead of DYNAMIC_DRAW
 
+    //Core openGL now requires vertex array objects to draw
+    GLuint vertexArrayObject; //the vao
+    glGenVertexArrays(1, &vertexArrayObject);
+    glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
     
-    
-    }
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3, NULL); //the first is zero for I only have position data
+
+    glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
+
+
+    //What to put inside the loop later
+    glBindVertexArray(vertexArrayObject);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    //After drawing the points, unhook it
+    glBindVertexArray(0);
+
+
 }
 
 struct primitive {
