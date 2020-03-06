@@ -123,6 +123,11 @@ bool initializeWindow() {
     //setting up the viewport, part of the window that I'm drawing to, for this case, I'm just gonna draw on the whole thing
     glViewport(0, 0, bufferWidth, bufferHeight);
 
+    //To handle resizing of the window, I must set the glViewport again
+    glfwSetFramebufferSizeCallback(WINDOW, [](GLFWwindow* window, int width, int height){
+        glViewport(0, 0, width, height);
+    });
+    
     //setting up a loop that will keep on looping until the window is closed
 
     //An example of it closing is when I press the close button on the window. I can use this as a game loop for now
@@ -201,7 +206,7 @@ void startTheGameLoop() {
         fpsCounter();
 
         //Clear Window
-        glClearColor(0, 0, 1, 1);
+        glClearColor(0.690, 0.878, 0.901, 0.5); //color: powder-blue
         glClear(GL_COLOR_BUFFER_BIT);
 
         //Drawing my triangle one --START
