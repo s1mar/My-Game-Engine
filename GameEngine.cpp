@@ -10,12 +10,23 @@
 using namespace std;
 const GLint WIDTH = 1440, HEIGHT = 900; //Window dimensions
 const char* TITLE = "It Lives";
-GLFWwindow* WINDOW;
 
-bool isWireframeVisible;
+
+
+GLFWwindow* WINDOW;
+GLuint SHADER_PROGRAM;
+GLuint VERTEX_ARRAY_OBJECT,VERTEX_BUFFER_OBJECT,ELEMENT_BUFFER_OBJECT;
+bool IS_WIREFRAME_VISIBLE;
+
+
 
 bool initializeWindow();
+bool initializeShaderProgram();
 void fpsCounter();
+void initializePrimitivesToDraw();
+void startTheGameLoop();
+void postRunCleanUp();
+
 
 
 const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
@@ -28,12 +39,24 @@ const GLchar* fragmentShaderSrc = "#version 330 core\n out vec4 color;\nin vec3 
 
 int main()
 {
+    //Intitialize the main window
     if (!initializeWindow()) {
         std::cerr << "Failed initializing the window, please see the console for error details" << std::endl;
         //Just to be sure that the clean-up happened
         glfwTerminate();
         return 1;
     }
+
+    //Initialize the shaders
+    if (!initializeShaderProgram()) {
+        std::cerr << "Failed initializing the shaders, please see the console for error details" << std::endl;
+        //Just to be sure that the clean-up happened
+        glfwTerminate();
+        return 1;
+    }
+
+    initializePrimitivesToDraw();
+    startTheGameLoop(); //post run cleanup is encapuslated inside this method, so as soon as it ends, the clean-up is gonna take place
 
     return 0;
 }
@@ -108,8 +131,8 @@ bool initializeWindow() {
         else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
             
             printf("Toggling wireframe");
-            isWireframeVisible = !isWireframeVisible;
-            if (isWireframeVisible) {
+            IS_WIREFRAME_VISIBLE = !IS_WIREFRAME_VISIBLE;
+            if (IS_WIREFRAME_VISIBLE) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             }
             else {
@@ -118,121 +141,6 @@ bool initializeWindow() {
 
         }
    });
-
-
-
-    //Keeping it simple, first I'm going to draw a simple triangle
-    
-    //Triangle one has position as well as color data for the vertices
-    GLfloat vertices[] = {
-        //triangle one data
-        -0.5f,0.5f,0.0f,   1.0f,0.0f,0.0f,
-        0.0f,0.0f,0.0f,  0.0f,1.0f,0.0f,
-       -0.5f,-0.5f,0.0f,   0.0f,0.0f,1.0f,
-
-       //triangle two data
-        0.5f,0.5f,0.0f,   0.0f,0.0f,1.0f,
-        0.0f,0.0f,0.0f,   0.0f,1.0f,0.0f,
-        0.5f,-0.5f,0.0f,  1.0f,0.0f,0.0f
-    };
-
-    //Triangle One Init
-    GLuint vertexBufferObject,vertexBufferObject_Two; //the vbo object
-    glGenBuffers(1, &vertexBufferObject); //creating one buffer and saving it's address in the vbo object above
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
-    //Note: In openGl we can only have one buffer active at a time
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Since the vertice data won't be changed a lot, I'm sticking with STATIC_DRAW instead of DYNAMIC_DRAW
-
-    //Core openGL now requires vertex array objects to draw
-    GLuint vertexArrayObject; //the vao
-    glGenVertexArrays(1, &vertexArrayObject);
-    glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
-
-    //Attrib pointer for position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*6, NULL); //the first is zero for I only have position data. A float is of 4 bytes and since we have x,y,z to represent a vertice. 
-
-    //Attrib pointer for color 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 6, (GLvoid*)(sizeof(GLfloat)*3)); //Since the color attribs are after the first 3 float positions
-    
-    glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
-    glEnableVertexAttribArray(1); //Enabling my color pointer as well
-   
-
-    //Shader init
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
-    glCompileShader(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
-    glCompileShader(fragmentShader);
-
-
-    //check if the shader compiles good
-    GLint result;
-    GLchar infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
-
-    if (!result) {
-
-        glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
-        printf("Vertex Shader compilation failed:" + *infoLog);
-    }
-
-    //Now checking compilation for the fragment shader
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
-        printf("Fragment shader compilation failed:" + *infoLog);
-    }
-
-    //Creating a shader program to use the shader
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
-    if (!result) {
-        glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
-        printf("Shader program linking failed:" + *infoLog);
-    }
-
-    //Now since the program is created, I can delete the shaders
-    glDeleteShader(fragmentShader);
-    glDeleteShader(vertexShader);
-
-
-    while (!glfwWindowShouldClose(WINDOW)) {
-
-        //Polling for user triggered input events
-        glfwPollEvents();
-
-        //This will show the fps on the title bar
-        fpsCounter();
-        
-        //Clear Window
-        glClearColor(0, 0, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        //Drawing my triangle one --START
-        glUseProgram(shaderProgram);
-        glBindVertexArray(vertexArrayObject);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        //After drawing the points, unhook it
-        glBindVertexArray(0);
-        //Drawing my triangle --END
-
-        glfwSwapBuffers(WINDOW); //Like the Professor said, there are 2 buffers, one that is drawn and that the other that we are drawing to, so we just swap them to show the one that we've just drawn to
-    }
-
-    //post run clean-up
-    glDeleteProgram(shaderProgram);
-    glDeleteVertexArrays(1, &vertexArrayObject);
-    glDeleteBuffers(1, &vertexBufferObject);
-    glfwTerminate();
-    
 
     return true;
 }
@@ -270,4 +178,145 @@ void fpsCounter() {
 
     countOfFrames++;
 
+}
+
+
+
+void startTheGameLoop() {
+    while (!glfwWindowShouldClose(WINDOW)) {
+
+        //Polling for user triggered input events
+        glfwPollEvents();
+
+        //This will show the fps on the title bar
+        fpsCounter();
+
+        //Clear Window
+        glClearColor(0, 0, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        //Drawing my triangle one --START
+        glUseProgram(SHADER_PROGRAM);
+        glBindVertexArray(VERTEX_ARRAY_OBJECT);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //After drawing the points, unhook it
+        glBindVertexArray(0);
+        //Drawing my triangle --END
+
+        glfwSwapBuffers(WINDOW); //Like the Professor said, there are 2 buffers, one that is drawn and that the other that we are drawing to, so we just swap them to show the one that we've just drawn to
+
+    }
+
+    postRunCleanUp();
+
+}
+
+
+bool initializeShaderProgram() {
+    //Shader init
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
+    glCompileShader(fragmentShader);
+
+
+    //check if the shader compiles good
+    GLint result;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
+
+    if (!result) {
+
+        glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
+        printf("Vertex Shader compilation failed:" + *infoLog);
+        return false;
+    }
+
+    //Now checking compilation for the fragment shader
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
+    if (!result) {
+        glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
+        printf("Fragment shader compilation failed:" + *infoLog);
+        return false;
+    }
+
+    //Creating a shader program to use the shader
+    SHADER_PROGRAM = glCreateProgram();
+    glAttachShader(SHADER_PROGRAM, vertexShader);
+    glAttachShader(SHADER_PROGRAM, fragmentShader);
+    glLinkProgram(SHADER_PROGRAM);
+
+    glGetProgramiv(SHADER_PROGRAM, GL_LINK_STATUS, &result);
+    if (!result) {
+        glGetProgramInfoLog(SHADER_PROGRAM, sizeof(infoLog), NULL, infoLog);
+        printf("Shader program linking failed:" + *infoLog);
+        return false;
+    }
+    //Now since the program is created, I can delete the shaders
+    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
+
+    return true;
+
+}
+
+void initializePrimitivesToDraw() {
+
+    //Triangle one has position as well as color data for the vertices
+    GLfloat vertices[] = {
+        //triangle one data
+        -0.5f,0.5f,0.0f,   1.0f,0.0f,0.0f,
+        0.0f,0.0f,0.0f,  0.0f,1.0f,0.0f,      //the common vertice that both the triangles share
+       -0.5f,-0.5f,0.0f,   0.0f,0.0f,1.0f,
+
+       //triangle two data
+        0.5f,0.5f,0.0f,   0.0f,0.0f,1.0f,
+        0.5f,-0.5f,0.0f,  1.0f,0.0f,0.0f
+    };
+
+    //Since both the primitive triangles share one common vertice, I'm going to use now and element buffer object to construct or render the primitives
+    GLint indexes[] = {
+        //triangle one is constructed using
+        0,1,2,
+        //triangle two is made up of
+        3,1,4
+    };
+
+
+    //Triangle One Init
+    glGenBuffers(1, &VERTEX_BUFFER_OBJECT); //creating one buffer and saving it's address in the vbo object above
+    glBindBuffer(GL_ARRAY_BUFFER, VERTEX_BUFFER_OBJECT); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
+    //Note: In openGl we can only have one buffer active at a time
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Since the vertice data won't be changed a lot, I'm sticking with STATIC_DRAW instead of DYNAMIC_DRAW
+
+    //Core openGL now requires vertex array objects to draw
+    glGenVertexArrays(1, &VERTEX_ARRAY_OBJECT);
+    glBindVertexArray(VERTEX_ARRAY_OBJECT); //to make the vao the active one, so that I can setup the attrib pointer
+
+    //Attrib pointer for position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 6, NULL); //the first is zero for I only have position data. A float is of 4 bytes and since we have x,y,z to represent a vertice. 
+
+    //Attrib pointer for color 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 6, (GLvoid*)(sizeof(GLfloat) * 3)); //Since the color attribs are after the first 3 float positions
+
+    glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
+    glEnableVertexAttribArray(1); //Enabling my color pointer as well
+
+
+    //Setting up the element buffer
+    glGenBuffers(1, &ELEMENT_BUFFER_OBJECT);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ELEMENT_BUFFER_OBJECT);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
+}
+
+void postRunCleanUp() {
+    //post run clean-up
+    glDeleteProgram(SHADER_PROGRAM);
+    glDeleteVertexArrays(1, &VERTEX_ARRAY_OBJECT);
+    glDeleteBuffers(1, &VERTEX_BUFFER_OBJECT);
+    glDeleteBuffers(1, &ELEMENT_BUFFER_OBJECT);
+    glfwTerminate();
 }
