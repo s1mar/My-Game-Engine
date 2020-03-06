@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cmath>
 
 using namespace std;
 const GLint WIDTH = 1440, HEIGHT = 900; //Window dimensions
@@ -19,21 +20,28 @@ GLuint VERTEX_ARRAY_OBJECT,VERTEX_BUFFER_OBJECT,ELEMENT_BUFFER_OBJECT;
 bool IS_WIREFRAME_VISIBLE;
 
 
-
 bool initializeWindow();
 bool initializeShaderProgram();
 void fpsCounter();
 void initializePrimitivesToDraw();
 void startTheGameLoop();
 void postRunCleanUp();
+void initTranslationDemo();
+void translationDemo();
 
+//For Basic translation demo
+GLuint y_move;
+bool currentTranslationDirectionUp = true;
 
+//Simple Logic: With each loop I'm going to increment by the offsetIncrement and when my primitives will hit the maxoffset, 
+//I'm going to reverse directions and this process will keep on looping
+float translationOffset = 0.0f, maxTranslationOffset = 0.65f, offsetIncrement = 0.0025f;
 
 const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
 
 //Shader Defined Section//
 //These are the two minimum required shader
-const GLchar* vertexShaderSrc =   "#version 330 core\n layout(location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nout vec3 vertColor; \nvoid main(){\nvertColor = color;\ngl_Position = vec4 (position.x,position.y,position.z,1.0);\n}";
+const GLchar* vertexShaderSrc =   "#version 330 core\n layout(location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nout vec3 vertColor; \nuniform float movY;\nvoid main(){\nvertColor = color;\ngl_Position = vec4 (position.x,position.y+movY,position.z,1.0);\n}";
 const GLchar* fragmentShaderSrc = "#version 330 core\n out vec4 color;\nin vec3 vertColor;\nvoid main(){\ncolor = vec4 (vertColor,1.0f);\n} ";
 
 
@@ -56,6 +64,7 @@ int main()
     }
 
     initializePrimitivesToDraw();
+    initTranslationDemo();
     startTheGameLoop(); //post run cleanup is encapuslated inside this method, so as soon as it ends, the clean-up is gonna take place
 
     return 0;
@@ -197,6 +206,7 @@ void startTheGameLoop() {
 
         //Drawing my triangle one --START
         glUseProgram(SHADER_PROGRAM);
+        translationDemo();
         glBindVertexArray(VERTEX_ARRAY_OBJECT);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         //After drawing the points, unhook it
@@ -263,6 +273,22 @@ bool initializeShaderProgram() {
 
 }
 
+void initTranslationDemo() {
+    //Code for basic translation demo
+    y_move = glGetUniformLocation(SHADER_PROGRAM, "movY");
+}
+
+//run inside the game loop; note to self: remember to place it after I set the shader program
+void translationDemo() {
+    if (abs(translationOffset) >= maxTranslationOffset) {
+            //reverse the translation direction
+        currentTranslationDirectionUp = !currentTranslationDirectionUp;
+    }
+
+    translationOffset = (currentTranslationDirectionUp) ? translationOffset + offsetIncrement : translationOffset - offsetIncrement;
+    glUniform1f(y_move, translationOffset);
+}
+
 void initializePrimitivesToDraw() {
 
     //Triangle one has position as well as color data for the vertices
@@ -320,3 +346,6 @@ void postRunCleanUp() {
     glDeleteBuffers(1, &ELEMENT_BUFFER_OBJECT);
     glfwTerminate();
 }
+
+
+
