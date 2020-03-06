@@ -12,6 +12,8 @@ const GLint WIDTH = 1440, HEIGHT = 900; //Window dimensions
 const char* TITLE = "It Lives";
 GLFWwindow* WINDOW;
 
+bool isWireframeVisible;
+
 bool initializeWindow();
 void fpsCounter();
 
@@ -22,6 +24,7 @@ const float FPS_TEXT_UPDATE_FREQUENCY = 0.25f;
 //These are the two minimum required shader
 const GLchar* vertexShaderSrc =   "#version 330 core\n layout(location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nout vec3 vertColor; \nvoid main(){\nvertColor = color;\ngl_Position = vec4 (position.x,position.y,position.z,1.0);\n}";
 const GLchar* fragmentShaderSrc = "#version 330 core\n out vec4 color;\nin vec3 vertColor;\nvoid main(){\ncolor = vec4 (vertColor,1.0f);\n} ";
+
 
 int main()
 {
@@ -102,18 +105,39 @@ bool initializeWindow() {
             printf("End key pressed");
             glfwSetWindowShouldClose(window, GL_TRUE);        //closing the window when the end key is pressed on the keyboard
         }
-        });
+        else if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+            
+            printf("Toggling wireframe");
+            isWireframeVisible = !isWireframeVisible;
+            if (isWireframeVisible) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            }
+            else {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+
+        }
+   });
 
 
 
     //Keeping it simple, first I'm going to draw a simple triangle
+    
+    //Triangle one has position as well as color data for the vertices
     GLfloat vertices[] = {
-       0.0f,0.5f,0.0f,   1.0f,0.0f,0.0f,
-       -0.5f,0.0f,0.0f,  0.0f,1.0f,0.0f,
-       0.5f,0.0f,0.0f,   0.0f,0.0f,1.0f
+        //triangle one data
+        -0.5f,0.5f,0.0f,   1.0f,0.0f,0.0f,
+        0.0f,0.0f,0.0f,  0.0f,1.0f,0.0f,
+       -0.5f,-0.5f,0.0f,   0.0f,0.0f,1.0f,
+
+       //triangle two data
+        0.5f,0.5f,0.0f,   0.0f,0.0f,1.0f,
+        0.0f,0.0f,0.0f,   0.0f,1.0f,0.0f,
+        0.5f,-0.5f,0.0f,  1.0f,0.0f,0.0f
     };
 
-    GLuint vertexBufferObject; //the vbo object
+    //Triangle One Init
+    GLuint vertexBufferObject,vertexBufferObject_Two; //the vbo object
     glGenBuffers(1, &vertexBufferObject); //creating one buffer and saving it's address in the vbo object above
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject); //since the vertices are type of array, I'm using GL_ARRAY_BUFFER
     //Note: In openGl we can only have one buffer active at a time
@@ -124,17 +148,17 @@ bool initializeWindow() {
     glGenVertexArrays(1, &vertexArrayObject);
     glBindVertexArray(vertexArrayObject); //to make the vao the active one, so that I can setup the attrib pointer
 
-    
     //Attrib pointer for position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*6, NULL); //the first is zero for I only have position data. A float is of 4 bytes and since we have x,y,z to represent a vertice. 
 
     //Attrib pointer for color 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 6, (GLvoid*)(sizeof(GLfloat)*3)); //Since the color attribs are after the first 3 float positions
-
-
+    
     glEnableVertexAttribArray(0); //By default openGL disables this array, I'm enabling it
     glEnableVertexAttribArray(1); //Enabling my color pointer as well
+   
 
+    //Shader init
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
     glCompileShader(vertexShader);
@@ -191,10 +215,10 @@ bool initializeWindow() {
         glClearColor(0, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //Drawing my triangle --START
+        //Drawing my triangle one --START
         glUseProgram(shaderProgram);
         glBindVertexArray(vertexArrayObject);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         //After drawing the points, unhook it
         glBindVertexArray(0);
