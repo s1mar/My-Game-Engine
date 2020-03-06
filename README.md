@@ -1,7 +1,7 @@
 # My Game Engine
-  My attempt at buidling a custom game engine.
+  My attempt at building a custom game engine.
 # New Features!
-  - Uses a single GL_ARRAY type buffer to hold both position and color data for a primtive.
+  - Uses a single GL_ARRAY type buffer to hold both position and color data for a primitive.
   - Primitives of the same type(for eg, triangles) share some vertices, element buffer is used and glDrawElements is used to draw the primitives.
   - Basic Vertex and Fragment shaders. 
   - Basic translation using a Uniform variable in the vertex shader
