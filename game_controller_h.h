@@ -34,10 +34,14 @@ public:
 	
 private:
 	
-	void init_loadTextures();
-	void init_loadLevels(); 
+	//Loads fresh textures
+	void loadLevelTextures(const char* tBackground, const char* tPaddle,  const  char* tTile, const char* tTileSolid, const char* tBall);
+	void init_loadLevels_RAW();
+	void loadLevelDataFromFiles();
 	void collisionAssessment();
 	Level getCurrentLevel();
 	void addLevel(Level level);
 	void drawCurrentLevel();
+	void loadLevel(int levelIndex);
+	void loadMenu();
 };

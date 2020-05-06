@@ -76,14 +76,11 @@ int main(int argc, char* argv[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Initializing the game
-    mGController.Initialize();
+    mGController.Initialize(); //It'll be intialized with the MENU state
 
     //The DeltaTime variables
     GLfloat deltaTime = 0.0f;
     GLfloat lastFrame = 0.0f;
-
-    // Setting the game state to active
-    mGController.state = STATE::ACTIVE;
 
     //Setting up the game loop
     while (!glfwWindowShouldClose(window))
@@ -119,7 +116,7 @@ int main(int argc, char* argv[])
 void callback_KeyInput(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     // When a user presses the escape key, we set the WindowShouldClose property to true, closing the application
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_X) && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
     if (key >= 0 && key < 1024)
     {

@@ -51,29 +51,13 @@ void GameController::Initialize() {
     Shader shader = ResManager::GetShader(SPRITE_SHADER);
     mRenderer = new RendererSprite(shader);
 
-    init_loadTextures();
+    //Loading textures that will be reused throughout
+    ResManager::LoadTexture(PATH_TEXTURE_PARTICLE, GL_TRUE, TEXTURE_PARTICLE);
+    ResManager::LoadTexture(PATH_TEXTURE_FAIL_SCREEN, GL_TRUE, TEXTURE_FAILURE_SCREEN_IMAGE);
+    ResManager::LoadTexture(PATH_TEXTURE_MENU_SCREEN, GL_FALSE, TEXTURE_MENU_SCREEN);
 
-    vec2 player_pos = vec2(
-        this->width / 2 - PADDLE_SIZE.x / 2,
-        this->height - PADDLE_SIZE.y
-    );
-    mPlayerPaddle = new GameObj(player_pos, PADDLE_SIZE, ResManager::GetTexture(TEXTURE_PADDLE));
-
-    vec2 ball_pos = player_pos + vec2(PADDLE_SIZE.x / 2 - BALL_RADIUS, -BALL_RADIUS * 2);
-
-    mBall = new BallObj(ball_pos, BALL_RADIUS, BALL_VEL_ON_START,
-        ResManager::GetTexture(BALL));
-
-    mParticleEmitter = new ParticleEmitter(
-        ResManager::GetShader(PARTICLE_SHADER),
-        ResManager::GetTexture(TEXTURE_PARTICLE),
-        NUM_PARTICLES
-    );
-
-    init_loadLevels();
-
-    //start the BGM
-    mAudio->PlayTrack(PATH_SOUND_BGM,true); //this will loop indefinitely, since it's the background music
+    loadMenu();
+   
 
 }
 
@@ -102,12 +86,113 @@ void GameController::InputProcessing(GLfloat delta) {
         if (this->keys[GLFW_KEY_SPACE])
             mBall->isStuck = false;
     }
+    else if (state == STATE::MENU) {
+       
+        if (keys[GLFW_KEY_1]) {
+            //Load level 1
+            loadLevel(1);
+        }
+        else if (keys[GLFW_KEY_2]) {
+            //Load level 2
+            loadLevel(2);
+        }
+        else if (keys[GLFW_KEY_3]) {
+            //Load level 3
+            loadLevel(3);
+        }
+        
+    }
+    else if (state == STATE::FAILURE) {
+        
+        if (keys[GLFW_KEY_M]) {
+            
+            loadMenu();
+        }
+    
+    }
+}
+
+
+void GameController :: loadMenu() {
+    state = STATE::MENU;
+    mAudio->StopAll();
+    mAudio->PlayTrack(PATH_SOUND_BGM_MENU, true);
+}
+
+void GameController::loadLevel(int levelIndex) {
+    state = STATE::ACTIVE;
+    
+    //Setting the current level
+    this->currentLevel = levelIndex - 1;
+
+    //Load Level Respective Textures
+    const char* pathToBackgroundTexture;
+    const char* pathToPaddleTexture;
+    const char* pathToTileTexture;
+    const char* pathToBallTexture;
+    const char* pathToTileSolidTexture;
+    
+    switch (currentLevel)
+    {
+    
+    default:
+    case 0:
+        pathToBackgroundTexture = LVL1_BACKGROUND_PATH;
+        pathToPaddleTexture = LVL1_PADDLE_PATH;
+        pathToBallTexture = LVL1_BALL_PATH;
+        pathToTileTexture = LVL1_TILE_PATH;
+        pathToTileSolidTexture = LVL1_TILE_SOLID_PATH;
+        break;
+    case 1:
+        pathToBackgroundTexture = LVL2_BACKGROUND_PATH;
+        pathToPaddleTexture = LVL2_PADDLE_PATH;
+        pathToBallTexture = LVL2_BALL_PATH;
+        pathToTileTexture = LVL2_TILE_PATH;
+        pathToTileSolidTexture = LVL2_TILE_SOLID_PATH;
+        break;
+    case 2:
+        pathToBackgroundTexture = LVL3_BACKGROUND_PATH;
+        pathToPaddleTexture = LVL3_PADDLE_PATH;
+        pathToBallTexture = LVL3_BALL_PATH;
+        pathToTileTexture = LVL3_TILE_PATH;
+        pathToTileSolidTexture = LVL3_TILE_SOLID_PATH;
+        break;
+    }
+
+    //Load Level Specific textures
+    loadLevelTextures(pathToBackgroundTexture, pathToPaddleTexture, pathToTileTexture, pathToTileSolidTexture, pathToBallTexture);
+
+    loadLevelDataFromFiles();
+   
+    
+    vec2 player_pos = vec2(
+        this->width / 2 - PADDLE_SIZE.x / 2,
+        this->height - PADDLE_SIZE.y
+    );
+    mPlayerPaddle = new GameObj(player_pos, PADDLE_SIZE, ResManager::GetTexture(TEXTURE_PADDLE));
+
+    vec2 ball_pos = player_pos + vec2(PADDLE_SIZE.x / 2 - BALL_RADIUS, -BALL_RADIUS * 2);
+
+    mBall = new BallObj(ball_pos, BALL_RADIUS, BALL_VEL_ON_START,
+        ResManager::GetTexture(TEXTURE_BALL));
+
+    mParticleEmitter = new ParticleEmitter(
+        ResManager::GetShader(PARTICLE_SHADER),
+        ResManager::GetTexture(TEXTURE_PARTICLE),
+        NUM_PARTICLES
+    );
+
+    mAudio->StopAll();
+
+    //start the BGM
+    mAudio->PlayTrack(PATH_SOUND_BGM, true); //this will loop indefinitely, since it's the background music
 }
 
 void GameController::Update(GLfloat delta) {
-    if (state == STATE::FAILURE) {
+    if (state == STATE::FAILURE || state == STATE::MENU) {
         return;
     }
+    
 
     //The ball has gone out of the bounds
     if (mBall->pos.y > this->height) {
@@ -130,7 +215,7 @@ void GameController::Render() {
     if (state == STATE::ACTIVE)
     {
         //Drawing the background
-        Texture textureBackground = ResManager::GetTexture(BACKGROUND_TEX);
+        Texture textureBackground = ResManager::GetTexture(TEXTURE_BACKGROUND);
         mRenderer->Draw(textureBackground,
             vec2(0, 0), vec2(this->width, this->height), 0.0f
         );
@@ -152,9 +237,15 @@ void GameController::Render() {
     }
     else if (state == STATE::FAILURE) {
         //Drawing the failure background
-        Texture textureBackground = ResManager::GetTexture(FAILURE_SCREEN_IMAGE);
+        Texture textureBackground = ResManager::GetTexture(TEXTURE_FAILURE_SCREEN_IMAGE);
         mRenderer->Draw(textureBackground,
             vec2(0, 0), vec2(this->width, this->height), 0.0f
+        );
+    }
+    else if (state == STATE::MENU) {
+        //Drawing the menu
+        Texture menuBack = ResManager::GetTexture(TEXTURE_MENU_SCREEN);
+        mRenderer->Draw(menuBack, vec2(0, 0), vec2(this->width, this->height), 0.0f
         );
     }
 }
@@ -171,25 +262,42 @@ void GameController::drawCurrentLevel() {
 }
 
 
-void GameController::init_loadTextures() {
-    ResManager::LoadTexture("res/Textures/city_night.jpg", GL_FALSE, BACKGROUND_TEX);
-    ResManager::LoadTexture("res/Textures/ball.png", GL_TRUE, BALL);
-    ResManager::LoadTexture("res/Textures/tile_blue.png", GL_FALSE, BLOCK);
-    ResManager::LoadTexture("res/Textures/tile_blue_solid.png", GL_FALSE, BLOCK_SOLID);
-    ResManager::LoadTexture("res/Textures/paddle2.png", GL_TRUE, PADDLE);
-    ResManager::LoadTexture("res/Textures/particle.png", GL_TRUE, PARTICLE);
-    ResManager::LoadTexture("res/Textures/failedThisCity.jpg", GL_TRUE, FAILURE_SCREEN_IMAGE);
+void GameController::loadLevelTextures(const char* tBackground, const char* tPaddle, const char* tTile, const char* tTileSolid, const char* tBall) {
+    
+    ResManager::UnloadTexture(TEXTURE_BACKGROUND);
+    ResManager::UnloadTexture(TEXTURE_BALL);
+    ResManager::UnloadTexture(TEXTURE_TILE);
+    ResManager::UnloadTexture(TEXTURE_TILE_SOLID);
+    ResManager::UnloadTexture(TEXTURE_PADDLE);
+
+    ResManager::LoadTexture(tBackground, GL_FALSE, TEXTURE_BACKGROUND);
+    ResManager::LoadTexture(tBall, GL_TRUE, TEXTURE_BALL);
+    ResManager::LoadTexture(tTile, GL_TRUE, TEXTURE_TILE);
+    ResManager::LoadTexture(tTileSolid, GL_TRUE, TEXTURE_TILE_SOLID);
+    ResManager::LoadTexture(tPaddle, GL_TRUE, TEXTURE_PADDLE);
+   
 }
 
-void GameController::init_loadLevels() {
+//Deprecated
+void GameController::init_loadLevels_RAW() {
    
     const GLchar* raw_level = "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5\n5 5 4 4 4 0 0 5 5 5 5 5 5 5 5\n4 4 4 4 4 0 0 0 5 5 5 0 0 4 4 4 4 4\n4 1 4 1 4 0 0 1 0 0 3 3 3 0 0 4 1 4 1 4\n3 3  4 1 4 1 0 0 0 3 3 3 3 3\n3 3 1 3 3 3 3 3 3 3 3 3 1 3 3\n2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 2 2 2 2 2 2 2 2 2 2 2 2 2 2";
     Level one;
     one.LoadFromRaw(raw_level, this->width, this->height * 0.5f);
     addLevel(one);
-    this->currentLevel = 0;
-
 }
+
+
+void GameController::loadLevelDataFromFiles() {
+    Level one(PATH_LVL_1, this->width, this->height * 0.5f);
+    addLevel(one);
+    Level two(PATH_LVL_2, this->width, this->height * 0.5f);
+    addLevel(two);
+    Level three(PATH_LVL_3,this->width, this->height * 0.5f);
+    addLevel(three);
+    
+}
+
 
 void GameController::addLevel(Level level) {
     this->levels.push_back(level);

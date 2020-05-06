@@ -31,6 +31,8 @@ public:
     // Loading a texture from file
     static Texture LoadTexture(const GLchar* file, GLboolean alpha,string name);
     
+    static void UnloadTexture(string name);
+
     // Retrieving a stored texture
     static Texture GetTexture(string name);
     

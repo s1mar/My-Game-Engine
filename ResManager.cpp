@@ -11,6 +11,18 @@ using namespace std;
 map<string, Texture>    ResManager::textures;
 map<string, Shader>       ResManager::shaders;
 
+
+void ResManager::UnloadTexture(string name)
+{
+    try {
+        if(textures.find(name)!=textures.end())
+            glDeleteTextures(1, &textures[name].Id);
+    }
+    catch (exception e) {
+        cerr << "Exception while unloading texture : " << e.what();
+    }
+}
+
 Shader ResManager::LoadShader(const GLchar* vertexShaderFile, const GLchar* fragmentShaderFile, string name)
 {
     shaders[name] = loadShaderFromFile(vertexShaderFile, fragmentShaderFile);

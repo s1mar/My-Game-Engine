@@ -72,7 +72,7 @@ void Level::Initialize(GLuint scrWidth, GLuint scrHeight, vector<vector<GLuint>>
                 vec2 pos(unit_width * x, unit_height * y);
                 vec2 size(unit_width, unit_height);
                 GameObj tileObj(pos, size,
-                    ResManager::GetTexture(BLOCK_SOLID),
+                    ResManager::GetTexture(TEXTURE_TILE_SOLID),
                     vec3(0.8f, 0.8f, 0.7f)
                 );
                 tileObj.isSolid = GL_TRUE;
@@ -102,7 +102,7 @@ void Level::Initialize(GLuint scrWidth, GLuint scrHeight, vector<vector<GLuint>>
                 vec2 size(unit_width, unit_height);
 
                 this->tiles.push_back(
-                    GameObj(pos, size, ResManager::GetTexture(BLOCK), color)
+                    GameObj(pos, size, ResManager::GetTexture(TEXTURE_TILE), color)
                 );
             }
         }
