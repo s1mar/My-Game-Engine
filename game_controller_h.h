@@ -37,7 +37,8 @@ private:
 	//Loads fresh textures
 	void loadLevelTextures(const char* tBackground, const char* tPaddle,  const  char* tTile, const char* tTileSolid, const char* tBall);
 	void init_loadLevels_RAW();
-	void loadLevelDataFromFiles();
+	//void loadLevelDataFromFiles();
+	void loadLevelDataFromFile(GLuint levelIndex);
 	void collisionAssessment();
 	Level getCurrentLevel();
 	void addLevel(Level level);

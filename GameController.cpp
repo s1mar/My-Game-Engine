@@ -56,6 +56,7 @@ void GameController::Initialize() {
     ResManager::LoadTexture(PATH_TEXTURE_FAIL_SCREEN, GL_TRUE, TEXTURE_FAILURE_SCREEN_IMAGE);
     ResManager::LoadTexture(PATH_TEXTURE_MENU_SCREEN, GL_FALSE, TEXTURE_MENU_SCREEN);
 
+    
     loadMenu();
    
 
@@ -123,7 +124,7 @@ void GameController::loadLevel(int levelIndex) {
     state = STATE::ACTIVE;
     
     //Setting the current level
-    this->currentLevel = levelIndex - 1;
+    this->currentLevel = 0; //Since I've rolled back the code to just having one level loaded at an instance, this will always point to the zeroeth index
 
     //Load Level Respective Textures
     const char* pathToBackgroundTexture;
@@ -132,25 +133,25 @@ void GameController::loadLevel(int levelIndex) {
     const char* pathToBallTexture;
     const char* pathToTileSolidTexture;
     
-    switch (currentLevel)
+    switch (levelIndex)
     {
     
     default:
-    case 0:
+    case 1:
         pathToBackgroundTexture = LVL1_BACKGROUND_PATH;
         pathToPaddleTexture = LVL1_PADDLE_PATH;
         pathToBallTexture = LVL1_BALL_PATH;
         pathToTileTexture = LVL1_TILE_PATH;
         pathToTileSolidTexture = LVL1_TILE_SOLID_PATH;
         break;
-    case 1:
+    case 2:
         pathToBackgroundTexture = LVL2_BACKGROUND_PATH;
         pathToPaddleTexture = LVL2_PADDLE_PATH;
         pathToBallTexture = LVL2_BALL_PATH;
         pathToTileTexture = LVL2_TILE_PATH;
         pathToTileSolidTexture = LVL2_TILE_SOLID_PATH;
         break;
-    case 2:
+    case 3:
         pathToBackgroundTexture = LVL3_BACKGROUND_PATH;
         pathToPaddleTexture = LVL3_PADDLE_PATH;
         pathToBallTexture = LVL3_BALL_PATH;
@@ -162,7 +163,11 @@ void GameController::loadLevel(int levelIndex) {
     //Load Level Specific textures
     loadLevelTextures(pathToBackgroundTexture, pathToPaddleTexture, pathToTileTexture, pathToTileSolidTexture, pathToBallTexture);
 
-    loadLevelDataFromFiles();
+    //Clearing the exisiting level(s) for I want the now being loaded level to be start anew (state resetted)
+    levels.clear();
+
+
+    loadLevelDataFromFile(levelIndex);
    
     
     vec2 player_pos = vec2(
@@ -288,13 +293,21 @@ void GameController::init_loadLevels_RAW() {
 }
 
 
-void GameController::loadLevelDataFromFiles() {
-    Level one(PATH_LVL_1, this->width, this->height * 0.5f);
-    addLevel(one);
-    Level two(PATH_LVL_2, this->width, this->height * 0.5f);
-    addLevel(two);
-    Level three(PATH_LVL_3,this->width, this->height * 0.5f);
-    addLevel(three);
+void GameController::loadLevelDataFromFile(GLuint levelIndex) {
+
+    if (levelIndex == 1) {
+        Level one(PATH_LVL_1, this->width, this->height * 0.5f);
+        addLevel(one);
+    }
+    else if (levelIndex == 2)
+    {
+        Level two(PATH_LVL_2, this->width, this->height * 0.5f);
+        addLevel(two);
+    }
+    else if (levelIndex == 3) {
+        Level three(PATH_LVL_3, this->width, this->height * 0.5f);
+        addLevel(three);
+    }
     
 }
 

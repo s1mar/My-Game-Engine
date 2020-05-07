@@ -1,16 +1,15 @@
 ﻿  GameController.cpp
-D:\IGME 750\GameEngine\Pooja\GameController.cpp(286,58): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
-D:\IGME 750\GameEngine\Pooja\GameController.cpp(292,53): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
-D:\IGME 750\GameEngine\Pooja\GameController.cpp(294,53): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
-D:\IGME 750\GameEngine\Pooja\GameController.cpp(296,54): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
-  main.cpp
+D:\IGME 750\GameEngine\Pooja\GameController.cpp(291,58): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
+D:\IGME 750\GameEngine\Pooja\GameController.cpp(299,57): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
+D:\IGME 750\GameEngine\Pooja\GameController.cpp(304,57): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
+D:\IGME 750\GameEngine\Pooja\GameController.cpp(308,59): warning C4244: 'argument': conversion from 'float' to 'GLuint', possible loss of data
 soil2-debug.lib(SOIL2.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:ICF' specification
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
 LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  158 of 859 functions (18.4%) were compiled, the rest were copied from previous compilation.
-    96 functions were new in current compilation
-    119 functions had inline decision re-evaluated but remain unchanged
+  3 of 860 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 LINK : warning LNK4286: symbol '___glewGenBuffers' defined in 'glew32s.lib(glew.obj)' is imported by 'GameController.obj'
 LINK : warning LNK4286: symbol '___glewGenVertexArrays' defined in 'glew32s.lib(glew.obj)' is imported by 'GameController.obj'
