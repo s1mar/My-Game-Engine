@@ -1,6 +1,7 @@
 # The Pooja Engine: Demo Breakout Clone
+[GithubRepo](https://github.com/s1mar/My-Game-Engine)
 
-I've always wanted to know what happens under the hood in commercial game engines.This is my attempt to build something of my own and learn the concepts in the process. For demonstration purposes, I've created a Breakout clone. A 2D game. Like in a commercial game engine, I've tried to divide the functionality into their respective modules or classes. For instance, GameController for encapsulating the game logic, and similar headers and classes for handling collisions,shaders,textures,resources,audio, particle system and rendering.
+I've always wanted to know what happens under the hood in commercial game engines. This is my attempt to build something of my own and learn the concepts in the process. For demonstration purposes, I've created a Breakout clone. A 2D game. Like in a commercial game engine, I've tried to divide the functionality into their respective modules or classes. For instance, GameController for encapsulating the game logic, and similar headers and classes for handling collisions, shaders, textures, resources, audio, particle system and rendering.
                                               
 ### Tech Stack
 
@@ -9,10 +10,10 @@ I've always wanted to know what happens under the hood in commercial game engine
   - [GLEW](http://glew.sourceforge.net/) - It provides efficient run-time mechanisms for determining which OpenGL extensions are supported on the target platform.
   - [SOIL2](https://github.com/SpartanJ/SOIL2) - A tiny C library used primarily for uploading textures into OpenGL.
   - [irrKlang](https://www.ambiera.com/irrklang/) - Sound engine and audio library which plays WAV, MP3, OGG, FLAC, MOD, XM, IT, S3M and more file formats.
-  - [glm](https://glm.g-truc.net/0.9.9/index.html) - OpenGL Mathematics (GLM) is a header only C++ mathematics library for graphics software based on the OpenGL Shading Language (GLSL) specifications.
+  - [glm](https://glm.g-truc.net/0.9.9/index.html) - OpenGL Mathematics (GLM) is a header-only C++ mathematics library for graphics software based on the OpenGL Shading Language (GLSL) specifications.
 
 ### Concepts Explored
-- How does rendering work with OpenGl?
+- How does rendering work with OpenGL?
 - Shaders and working with textures.
 - Orthographic projection and dealing with world space and normalized device coordinates.
 - 2D Physics and collision resolution algorithms like AABB - AABB and AABB with a circle.

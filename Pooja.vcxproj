@@ -71,14 +71,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\IGME 750\External Libs\IRRKLANG\include;D:\IGME 750\External Libs\GLFW\include\GLFW;D:\IGME 750\External Libs\GLEW\include\GL;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\IGME 750\External Libs\IRRKLANG\include;..\..\..\IGME 750\External Libs\GLFW\include\GLFW;..\..\..\IGME 750\External Libs\GLEW\include\GL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\IGME 750\External Libs\IRRKLANG\include;D:\IGME 750\External Libs\GLFW\include\GLFW;D:\IGME 750\External Libs\GLEW\include\GL;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\IGME 750\External Libs\IRRKLANG\include;..\..\..\IGME 750\External Libs\GLFW\include\GLFW;..\..\..\IGME 750\External Libs\GLEW\include\GL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -89,12 +89,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\IGME 750\External Libs\IRRKLANG\include;D:\IGME 750\External Libs\SOIL\inlcude\SOIL2;D:\IGME 750\GameEngine\Pooja\Breakout\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\IGME 750\External Libs\IRRKLANG\include;..\..\..\IGME 750\External Libs\SOIL\inlcude\SOIL2;..\..\..\IGME 750\GameEngine\Pooja\Breakout\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\IGME 750\External Libs\IRRKLANG\lib\Win32-visualStudio;D:\IGME 750\External Libs\SOIL\lib;D:\IGME 750\External Libs\GLFW\lib-vc2019;D:\IGME 750\External Libs\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\IGME 750\External Libs\IRRKLANG\lib\Win32-visualStudio;..\..\..\IGME 750\External Libs\SOIL\lib;..\..\..\IGME 750\External Libs\GLFW\lib-vc2019;..\..\..\IGME 750\External Libs\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2-debug.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -118,14 +118,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\IGME 750\External Libs\IRRKLANG\include;D:\IGME 750\External Libs\SOIL\inlcude\SOIL2;D:\IGME 750\GameEngine\Pooja\Breakout\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\IGME 750\External Libs\IRRKLANG\include;..\..\..\IGME 750\External Libs\SOIL\inlcude\SOIL2;..\..\..\IGME 750\GameEngine\Pooja\Breakout\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\IGME 750\External Libs\IRRKLANG\lib\Win32-visualStudio;D:\IGME 750\External Libs\SOIL\lib;D:\IGME 750\External Libs\GLFW\lib-vc2019;D:\IGME 750\External Libs\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\IGME 750\External Libs\IRRKLANG\lib\Win32-visualStudio;..\..\..\IGME 750\External Libs\SOIL\lib;..\..\..\IGME 750\External Libs\GLFW\lib-vc2019;..\..\..\IGME 750\External Libs\GLEW\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2-debug.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

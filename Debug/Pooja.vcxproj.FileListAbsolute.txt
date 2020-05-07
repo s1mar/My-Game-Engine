@@ -1,0 +1,2 @@
+D:\IGME 750\GameEngine\Pooja\Debug\Pooja.exe
+D:\IGME 750\GameEngine\Pooja\Debug\Pooja.pdb
