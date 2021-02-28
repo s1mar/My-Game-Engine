@@ -1,4 +1,4 @@
-# The Pooja Engine: Demo Breakout Clone
+# The Engine: Demo Breakout Clone
 [GithubRepo](https://github.com/s1mar/My-Game-Engine)
 
 I've always wanted to know what happens under the hood in commercial game engines. This is my attempt to build something of my own and learn the concepts in the process. For demonstration purposes, I've created a Breakout clone. A 2D game. Like in a commercial game engine, I've tried to divide the functionality into their respective modules or classes. For instance, GameController for encapsulating the game logic, and similar headers and classes for handling collisions, shaders, textures, resources, audio, particle system and rendering.
